@@ -13,6 +13,7 @@ from saturnix_harness.core.security_sentinel import SecuritySentinel
 from saturnix_harness.core.verification_engine import VerificationEngine
 from saturnix_harness.core.workflow import NavigationWorkflowBuilder
 from saturnix_harness.memory.manager import MemoryManager
+from saturnix_harness.memory.neural_engine import NeuralMemoryEngine
 from saturnix_harness.monitoring.events import MonitoringLayer
 from saturnix_harness.schemas import (
     AutonomousAgentConstructionRequest,
@@ -22,6 +23,9 @@ from saturnix_harness.schemas import (
     DynamicAgentRequest,
     HarnessRequest,
     HarnessResponse,
+    NeuralMemoryCompressionRequest,
+    NeuralMemoryRecallRequest,
+    NeuralMemoryStoreRequest,
     SaturnixExecutionRequest,
     SaturnixExecutionResult,
     SecurityScanRequest,
@@ -46,6 +50,7 @@ class CoreOrchestrator:
         self.ollama_provider = SaturnixOllamaProvider(self.settings)
         self.tool_router = tool_router or ToolRouter()
         self.memory = memory or MemoryManager(self.settings)
+        self.neural_memory_engine = NeuralMemoryEngine(self.memory)
         self.monitoring = monitoring or MonitoringLayer()
         self.intent_mapper = HumanIntentMapper()
         self.agent_constructor = AgentConstructor(
@@ -99,6 +104,15 @@ class CoreOrchestrator:
 
     async def scan_security(self, request: SecurityScanRequest):
         return self.security_sentinel.scan(request)
+
+    async def store_neural_memory(self, request: NeuralMemoryStoreRequest):
+        return self.neural_memory_engine.store(request)
+
+    async def recall_neural_memory(self, request: NeuralMemoryRecallRequest):
+        return self.neural_memory_engine.recall(request)
+
+    async def compress_neural_memory(self, request: NeuralMemoryCompressionRequest):
+        return self.neural_memory_engine.compress(request)
 
     async def analyze_improvement(self, result):
         return self.improvement_engine.analyze_execution(result)

@@ -14,6 +14,9 @@ from saturnix_harness.schemas import (
     HarnessRequest,
     MemoryRecord,
     MemoryType,
+    NeuralMemoryCompressionRequest,
+    NeuralMemoryRecallRequest,
+    NeuralMemoryStoreRequest,
     OllamaClassifyRequest,
     OllamaCodeGenerateRequest,
     OllamaGenerateRequest,
@@ -113,6 +116,30 @@ async def scan_security(
     orchestrator: CoreOrchestrator = Depends(get_orchestrator),
 ):
     return await orchestrator.scan_security(request)
+
+
+@router.post("/neural-memory/store")
+async def store_neural_memory(
+    request: NeuralMemoryStoreRequest,
+    orchestrator: CoreOrchestrator = Depends(get_orchestrator),
+):
+    return await orchestrator.store_neural_memory(request)
+
+
+@router.post("/neural-memory/recall")
+async def recall_neural_memory(
+    request: NeuralMemoryRecallRequest,
+    orchestrator: CoreOrchestrator = Depends(get_orchestrator),
+):
+    return await orchestrator.recall_neural_memory(request)
+
+
+@router.post("/neural-memory/compress")
+async def compress_neural_memory(
+    request: NeuralMemoryCompressionRequest,
+    orchestrator: CoreOrchestrator = Depends(get_orchestrator),
+):
+    return await orchestrator.compress_neural_memory(request)
 
 
 @router.get("/ollama/health")

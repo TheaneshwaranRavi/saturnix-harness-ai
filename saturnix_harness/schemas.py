@@ -628,6 +628,87 @@ class MemorySummary(BaseModel):
     summary: str
 
 
+class NeuralMemoryStoreRequest(BaseModel):
+    content: str
+    category: Literal[
+        "successful_workflow",
+        "failed_workflow",
+        "user_preference",
+        "project_architecture",
+        "reasoning_pattern",
+        "optimization_strategy",
+        "code_snippet",
+        "reusable_agent_structure",
+    ] = "reasoning_pattern"
+    namespace: str = "saturnix:neural"
+    title: str | None = None
+    tags: list[str] = Field(default_factory=list)
+    metadata: dict[str, Any] = Field(default_factory=dict)
+    importance_score: float = Field(default=0.6, ge=0.0, le=1.0)
+    source: str | None = "neural_memory_engine"
+    link_query: str | None = None
+    compress: bool = True
+
+
+class NeuralMemoryLink(BaseModel):
+    source_id: str
+    target_id: str
+    relationship: str
+    strength: float = Field(ge=0.0, le=1.0)
+    reason: str
+
+
+class NeuralMemoryStoreResult(BaseModel):
+    memory: MemoryRecord
+    compressed_summary: str
+    linked_memory_ids: list[str] = Field(default_factory=list)
+    aging_policy: dict[str, Any] = Field(default_factory=dict)
+
+
+class NeuralMemoryRecallRequest(BaseModel):
+    query: str
+    namespace: str = "saturnix:neural"
+    categories: list[str] = Field(default_factory=list)
+    tags: list[str] = Field(default_factory=list)
+    limit: int = Field(default=8, ge=1, le=50)
+    include_links: bool = True
+    include_summary: bool = True
+    half_life_days: int = Field(default=180, ge=1, le=3650)
+
+
+class NeuralMemoryHit(BaseModel):
+    memory: MemoryRecord
+    rank_score: float = Field(ge=0.0, le=1.0)
+    semantic_score: float = Field(ge=0.0, le=1.0)
+    importance_score: float = Field(ge=0.0, le=1.0)
+    recency_score: float = Field(ge=0.0, le=1.0)
+    age_days: float = Field(ge=0.0)
+    linked_memory_ids: list[str] = Field(default_factory=list)
+
+
+class NeuralMemoryRecallResult(BaseModel):
+    query: str
+    ranked_memories: list[NeuralMemoryHit]
+    context_summary: str
+    compressed_context: str
+    memory_links: list[NeuralMemoryLink] = Field(default_factory=list)
+    aging_notes: list[str] = Field(default_factory=list)
+
+
+class NeuralMemoryCompressionRequest(BaseModel):
+    namespace: str = "saturnix:neural"
+    category: str | None = None
+    limit: int = Field(default=50, ge=1, le=500)
+    title: str | None = None
+
+
+class NeuralMemoryCompressionResult(BaseModel):
+    summary_record: MemoryRecord
+    source_record_ids: list[str]
+    compression_ratio: float
+    summary: str
+
+
 class RuntimeEvent(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid4()))
     name: str

@@ -495,6 +495,37 @@ blocks prompt injection, unsafe execution, malicious workflows, unauthorized
 file access, weak dependency sources, risky container settings, and sensitive
 data exposure.
 
+Store and recall long-term evolving intelligence:
+
+```bash
+curl -X POST http://localhost:8088/v1/neural-memory/store \
+  -H "Content-Type: application/json" \
+  -d '{
+    "content": "Successful FastAPI workflow used security checks, consensus review, and verification before execution.",
+    "category": "successful_workflow",
+    "title": "Secure FastAPI workflow",
+    "importance_score": 0.9,
+    "tags": ["fastapi", "security", "workflow"]
+  }'
+```
+
+```bash
+curl -X POST http://localhost:8088/v1/neural-memory/recall \
+  -H "Content-Type: application/json" \
+  -d '{
+    "query": "FastAPI security consensus workflow",
+    "limit": 5,
+    "include_links": true,
+    "include_summary": true
+  }'
+```
+
+The Neural Memory Engine stores successful workflows, failed workflows, user
+preferences, project architectures, reasoning patterns, optimization
+strategies, code snippets, and reusable agent structures. It adds semantic
+retrieval, ranking, aging, linking, context summaries, and compression on top of
+SQLite and ChromaDB.
+
 Run multi-brain consensus:
 
 ```bash
@@ -645,6 +676,9 @@ Memory endpoints:
 - `PATCH /v1/memory/{record_id}`
 - `DELETE /v1/memory/{record_id}`
 - `GET /v1/memory/summary`
+- `POST /v1/neural-memory/store`
+- `POST /v1/neural-memory/recall`
+- `POST /v1/neural-memory/compress`
 
 Example memory save:
 
@@ -777,6 +811,7 @@ Current implemented areas include:
 - Security Sentinel
 - Execution Engine
 - Memory Manager
+- Neural Memory Engine
 - Ollama Provider
 - Voice Engine
 - Recursive Improvement Engine
