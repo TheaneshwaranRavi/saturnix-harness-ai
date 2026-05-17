@@ -29,7 +29,9 @@ from saturnix_harness.schemas import (
     SaturnixExecutionRequest,
     SaturnixExecutionResult,
     SecurityScanRequest,
+    ToolRoutingRequest,
 )
+from saturnix_harness.tools.intelligence_router import ToolIntelligenceRouter
 from saturnix_harness.tools.router import ToolRouter
 from saturnix_harness.voice.engine import VoiceEngine
 
@@ -49,6 +51,7 @@ class CoreOrchestrator:
         self.brain_router = brain_router or BrainRouter(self.settings)
         self.ollama_provider = SaturnixOllamaProvider(self.settings)
         self.tool_router = tool_router or ToolRouter()
+        self.tool_intelligence_router = ToolIntelligenceRouter()
         self.memory = memory or MemoryManager(self.settings)
         self.neural_memory_engine = NeuralMemoryEngine(self.memory)
         self.monitoring = monitoring or MonitoringLayer()
@@ -104,6 +107,9 @@ class CoreOrchestrator:
 
     async def scan_security(self, request: SecurityScanRequest):
         return self.security_sentinel.scan(request)
+
+    async def route_tools(self, request: ToolRoutingRequest):
+        return self.tool_intelligence_router.route(request)
 
     async def store_neural_memory(self, request: NeuralMemoryStoreRequest):
         return self.neural_memory_engine.store(request)

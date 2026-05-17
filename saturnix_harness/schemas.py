@@ -282,6 +282,24 @@ class ToolResult(BaseModel):
     error: str | None = None
 
 
+class ToolRoutingRequest(BaseModel):
+    task: str
+    task_type: str = ""
+    speed_requirement: str = "normal"
+    privacy_level: str = "standard"
+    execution_cost: str = "balanced"
+    reliability_requirement: str = "standard"
+    scalability_requirement: str = "medium"
+    available_tools: list[str] = Field(default_factory=list)
+    constraints: list[str] = Field(default_factory=list)
+
+
+class ToolRoutingResult(BaseModel):
+    selected_tools: list[str]
+    tool_reasoning: list[str]
+    fallback_tools: list[str]
+
+
 class AgentSpec(BaseModel):
     name: str
     role: str

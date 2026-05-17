@@ -526,6 +526,28 @@ strategies, code snippets, and reusable agent structures. It adds semantic
 retrieval, ranking, aging, linking, context summaries, and compression on top of
 SQLite and ChromaDB.
 
+Select the best tools automatically:
+
+```bash
+curl -X POST http://localhost:8088/v1/tools/route \
+  -H "Content-Type: application/json" \
+  -d '{
+    "task": "Analyze private code snippets and recall previous security patterns",
+    "task_type": "coding memory",
+    "speed_requirement": "high",
+    "privacy_level": "private",
+    "execution_cost": "low",
+    "reliability_requirement": "high",
+    "scalability_requirement": "medium",
+    "constraints": ["offline", "semantic retrieval"]
+  }'
+```
+
+The Tool Intelligence Router scores web search, APIs, local Python, Docker,
+GitHub, databases, file systems, vector memory, voice systems, and Raspberry Pi
+edge nodes against speed, privacy, cost, reliability, and scalability. It
+returns `selected_tools`, `tool_reasoning`, and `fallback_tools`.
+
 Run multi-brain consensus:
 
 ```bash
@@ -810,6 +832,7 @@ Current implemented areas include:
 - Consensus Engine
 - Security Sentinel
 - Execution Engine
+- Tool Intelligence Router
 - Memory Manager
 - Neural Memory Engine
 - Ollama Provider

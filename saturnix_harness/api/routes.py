@@ -26,6 +26,7 @@ from saturnix_harness.schemas import (
     SaturnixExecutionRequest,
     SaturnixExecutionResult,
     SecurityScanRequest,
+    ToolRoutingRequest,
     UpdateMemoryRequest,
     VoiceCommandRequest,
     VoiceSynthesisRequest,
@@ -116,6 +117,14 @@ async def scan_security(
     orchestrator: CoreOrchestrator = Depends(get_orchestrator),
 ):
     return await orchestrator.scan_security(request)
+
+
+@router.post("/tools/route")
+async def route_tools(
+    request: ToolRoutingRequest,
+    orchestrator: CoreOrchestrator = Depends(get_orchestrator),
+):
+    return await orchestrator.route_tools(request)
 
 
 @router.post("/neural-memory/store")
