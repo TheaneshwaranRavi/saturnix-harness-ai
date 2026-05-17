@@ -9,7 +9,7 @@ from rich.console import Console
 from saturnix_harness.config import get_settings
 from saturnix_harness.core.orchestrator import CoreOrchestrator
 from saturnix_harness.monitoring.logging_config import configure_logging
-from saturnix_harness.schemas import BrainName, Capability, HarnessRequest
+from saturnix_harness.schemas import BrainName, Capability, ForgeBuildRequest, HarnessRequest
 
 app = typer.Typer(help="SATURNIX-HARNESS command line interface.")
 console = Console()
@@ -19,9 +19,21 @@ console = Console()
 def run(
     goal: str = typer.Argument(..., help="Human goal to execute through SATURNIX-HARNESS."),
     input_text: str | None = typer.Option(None, "--input", "-i", help="Additional input context."),
-    preferred_brain: BrainName | None = typer.Option(None, "--brain", help="Preferred brain provider."),
-    local_only: bool = typer.Option(False, "--local-only", help="Force local/private brain routing."),
-    no_improve: bool = typer.Option(False, "--no-improve", help="Disable automatic improvement loop."),
+    preferred_brain: BrainName | None = typer.Option(
+        None,
+        "--brain",
+        help="Preferred brain provider.",
+    ),
+    local_only: bool = typer.Option(
+        False,
+        "--local-only",
+        help="Force local/private brain routing.",
+    ),
+    no_improve: bool = typer.Option(
+        False,
+        "--no-improve",
+        help="Disable automatic improvement loop.",
+    ),
 ) -> None:
     """Run a complete HARNESS workflow."""
 
@@ -59,6 +71,40 @@ def remember(
     console.print_json(record.model_dump_json(indent=2))
 
 
+@app.command()
+def forge(
+    goal: str = typer.Argument(..., help="Software system goal for Forge to build."),
+    project_name: str = typer.Option("saturnix-forged-system", "--project-name", "-p"),
+    application_type: str = typer.Option("backend_api", "--type", "-t"),
+    stack: str = typer.Option("", "--stack", help="Comma-separated technology stack."),
+    features: str = typer.Option("", "--features", help="Comma-separated feature list."),
+    private: bool = typer.Option(False, "--private", help="Prefer private/local build routing."),
+    frontend: bool = typer.Option(False, "--frontend", help="Include frontend structure."),
+    no_docker: bool = typer.Option(False, "--no-docker", help="Skip Docker artifacts."),
+    no_ci: bool = typer.Option(False, "--no-ci", help="Skip CI artifacts."),
+    no_monitoring: bool = typer.Option(False, "--no-monitoring", help="Skip monitoring plan."),
+) -> None:
+    """Generate a production-oriented Forge construction plan."""
+
+    result = asyncio.run(
+        _orchestrator().forge_build(
+            ForgeBuildRequest(
+                goal=goal,
+                project_name=project_name,
+                application_type=application_type,
+                stack=_csv(stack),
+                features=_csv(features),
+                privacy_level="private" if private else "standard",
+                include_frontend=frontend,
+                include_docker=not no_docker,
+                include_ci=not no_ci,
+                include_monitoring=not no_monitoring,
+            )
+        )
+    )
+    console.print_json(result.model_dump_json(indent=2))
+
+
 @app.command("memory-search")
 def memory_search(
     query: str,
@@ -75,8 +121,9 @@ def memory_search(
 def tools() -> None:
     """List tool router specs."""
 
+    specs = [tool.model_dump(mode="json") for tool in _orchestrator().tool_router.specs()]
     console.print_json(
-        json.dumps([tool.model_dump(mode="json") for tool in _orchestrator().tool_router.specs()], indent=2)
+        json.dumps(specs, indent=2)
     )
 
 
@@ -93,6 +140,9 @@ def _orchestrator() -> CoreOrchestrator:
     return CoreOrchestrator(settings=settings)
 
 
+def _csv(value: str) -> list[str]:
+    return [item.strip() for item in value.split(",") if item.strip()]
+
+
 if __name__ == "__main__":
     app()
-

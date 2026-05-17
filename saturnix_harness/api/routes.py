@@ -11,6 +11,7 @@ from saturnix_harness.schemas import (
     ConsensusRequest,
     ConstructAgentRequest,
     DynamicAgentRequest,
+    ForgeBuildRequest,
     HarnessRequest,
     MemoryRecord,
     MemoryType,
@@ -125,6 +126,14 @@ async def route_tools(
     orchestrator: CoreOrchestrator = Depends(get_orchestrator),
 ):
     return await orchestrator.route_tools(request)
+
+
+@router.post("/forge/build")
+async def forge_build(
+    request: ForgeBuildRequest,
+    orchestrator: CoreOrchestrator = Depends(get_orchestrator),
+):
+    return await orchestrator.forge_build(request)
 
 
 @router.post("/neural-memory/store")

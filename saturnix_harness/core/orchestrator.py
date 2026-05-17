@@ -8,6 +8,7 @@ from saturnix_harness.core.improvement_engine import RecursiveImprovementEngine
 from saturnix_harness.config import Settings, get_settings
 from saturnix_harness.core.agent_constructor import AgentConstructor
 from saturnix_harness.core.execution_engine import ExecutionEngine, SaturnixExecutionEngine
+from saturnix_harness.core.forge_engine import ForgeCodingEngine
 from saturnix_harness.core.intent_mapper import HumanIntentMapper
 from saturnix_harness.core.security_sentinel import SecuritySentinel
 from saturnix_harness.core.verification_engine import VerificationEngine
@@ -21,6 +22,7 @@ from saturnix_harness.schemas import (
     ConsensusRequest,
     ConstructAgentRequest,
     DynamicAgentRequest,
+    ForgeBuildRequest,
     HarnessRequest,
     HarnessResponse,
     NeuralMemoryCompressionRequest,
@@ -70,6 +72,12 @@ class CoreOrchestrator:
         self.verifier = VerificationEngine(self.brain_router)
         self.consensus_engine = ConsensusEngine(self.brain_router)
         self.security_sentinel = SecuritySentinel()
+        self.forge_engine = ForgeCodingEngine(
+            brain_router=self.brain_router,
+            tool_router=self.tool_intelligence_router,
+            memory=self.memory,
+            security_sentinel=self.security_sentinel,
+        )
         self.improvement_engine = RecursiveImprovementEngine(self.memory)
         self.execution_engine = SaturnixExecutionEngine(
             intent_mapper=self.intent_mapper,
@@ -110,6 +118,9 @@ class CoreOrchestrator:
 
     async def route_tools(self, request: ToolRoutingRequest):
         return self.tool_intelligence_router.route(request)
+
+    async def forge_build(self, request: ForgeBuildRequest):
+        return self.forge_engine.build(request)
 
     async def store_neural_memory(self, request: NeuralMemoryStoreRequest):
         return self.neural_memory_engine.store(request)

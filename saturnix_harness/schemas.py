@@ -300,6 +300,83 @@ class ToolRoutingResult(BaseModel):
     fallback_tools: list[str]
 
 
+class ForgeBuildRequest(BaseModel):
+    goal: str
+    project_name: str = "saturnix-forged-system"
+    application_type: str = "backend_api"
+    stack: list[str] = Field(default_factory=list)
+    features: list[str] = Field(default_factory=list)
+    constraints: list[str] = Field(default_factory=list)
+    privacy_level: str = "standard"
+    speed_requirement: str = "normal"
+    scalability_target: str = "medium"
+    deployment_target: str = "docker"
+    include_frontend: bool = False
+    include_database: bool = True
+    include_docker: bool = True
+    include_ci: bool = True
+    include_monitoring: bool = True
+    persist_plan: bool = True
+
+
+class ForgeArchitectureComponent(BaseModel):
+    name: str
+    purpose: str
+    responsibilities: list[str]
+    interfaces: list[str]
+    scaling_notes: list[str]
+
+
+class ForgeArchitecturePlan(BaseModel):
+    summary: str
+    principles: list[str]
+    selected_brain: str
+    selected_tools: list[str]
+    components: list[ForgeArchitectureComponent]
+    data_flow: list[str]
+    security_model: list[str]
+
+
+class ForgeFolderItem(BaseModel):
+    path: str
+    purpose: str
+    owner: str
+
+
+class ForgeArtifact(BaseModel):
+    path: str
+    artifact_type: Literal["source", "test", "config", "docker", "ci", "doc"]
+    purpose: str
+    content: str
+
+
+class ForgeDeploymentSetup(BaseModel):
+    target: str
+    artifacts: list[ForgeArtifact]
+    environment_variables: list[str]
+    run_commands: list[str]
+    release_checks: list[str]
+
+
+class ForgeMonitoringSetup(BaseModel):
+    health_checks: list[str]
+    logs: list[str]
+    metrics: list[str]
+    traces: list[str]
+    alerts: list[str]
+
+
+class ForgeBuildResult(BaseModel):
+    architecture_plan: ForgeArchitecturePlan
+    folder_structure: list[ForgeFolderItem]
+    implementation: list[ForgeArtifact]
+    tests: list[ForgeArtifact]
+    deployment_setup: ForgeDeploymentSetup
+    monitoring_setup: ForgeMonitoringSetup
+    optimization_report: list[str]
+    memory_saved: dict[str, Any] = Field(default_factory=dict)
+
+
 class AgentSpec(BaseModel):
     name: str
     role: str

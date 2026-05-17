@@ -548,6 +548,31 @@ GitHub, databases, file systems, vector memory, voice systems, and Raspberry Pi
 edge nodes against speed, privacy, cost, reliability, and scalability. It
 returns `selected_tools`, `tool_reasoning`, and `fallback_tools`.
 
+Generate a production software foundation with Forge:
+
+```bash
+curl -X POST http://localhost:8088/v1/forge/build \
+  -H "Content-Type: application/json" \
+  -d '{
+    "goal": "Build a FastAPI backend with database persistence and monitoring",
+    "project_name": "Forge CRM",
+    "application_type": "backend_api",
+    "stack": ["Python", "FastAPI", "SQLite"],
+    "features": ["contacts", "audit logs"],
+    "scalability_target": "high",
+    "include_docker": true,
+    "include_ci": true,
+    "include_monitoring": true
+  }'
+```
+
+The SATURNIX Forge Coding Engine generates a typed architecture plan, folder
+structure, starter source artifacts, test artifacts, Docker and CI deployment
+setup, monitoring plan, and optimization report. It routes the build through
+the Brain Router, selects implementation tools through the Tool Intelligence
+Router, scans the construction brief with Security Sentinel, and stores the
+plan in `saturnix:forge` memory when `persist_plan` is enabled.
+
 Run multi-brain consensus:
 
 ```bash
@@ -833,6 +858,7 @@ Current implemented areas include:
 - Security Sentinel
 - Execution Engine
 - Tool Intelligence Router
+- Forge Coding Engine
 - Memory Manager
 - Neural Memory Engine
 - Ollama Provider
