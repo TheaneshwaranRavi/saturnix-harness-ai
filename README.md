@@ -646,6 +646,33 @@ notifications, and a resilience plan. Recovery actions are marked with
 `safe_to_auto_execute` and `confirmation_required` so SATURNIX can automate
 bounded repairs while protecting destructive cleanup or state changes.
 
+Run SATURNIX-HARNESS OMEGA as the cognitive operating layer:
+
+```bash
+curl -X POST http://localhost:8088/v1/omega/run \
+  -H "Content-Type: application/json" \
+  -d '{
+    "goal": "Build a secure multi-agent coding workflow with verification",
+    "input": "Use memory, brain routing, recursive improvement, and infrastructure checks.",
+    "task_type": "coding architecture",
+    "privacy_level": "standard",
+    "execute": true,
+    "use_consensus": true,
+    "persist_memory": true,
+    "optimize_infrastructure": true
+  }'
+```
+
+OMEGA is the top-level cognitive operating mode. It understands human intent,
+creates or reuses specialized agents, routes brains and tools, constructs a
+dependency-aware workflow, optionally runs multi-brain consensus, executes the
+workflow, verifies results, performs recursive improvement analysis, stores
+long-term neural memory, checks distributed infrastructure, and returns an
+evolution plan for the next autonomous loop.
+
+Set `"execute": false` to generate an autonomous system plan without live
+execution.
+
 Run multi-brain consensus:
 
 ```bash
@@ -985,6 +1012,7 @@ python3 -m pytest
 
 Current implemented areas include:
 
+- SATURNIX-HARNESS OMEGA
 - Brain Router
 - Agent Constructor
 - Autonomous Agent Constructor

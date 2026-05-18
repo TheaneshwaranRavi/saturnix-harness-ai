@@ -11,6 +11,7 @@ from saturnix_harness.core.agent_constructor import AgentConstructor
 from saturnix_harness.core.execution_engine import ExecutionEngine, SaturnixExecutionEngine
 from saturnix_harness.core.forge_engine import ForgeCodingEngine
 from saturnix_harness.core.intent_mapper import HumanIntentMapper
+from saturnix_harness.core.omega_engine import OmegaEngine
 from saturnix_harness.core.security_sentinel import SecuritySentinel
 from saturnix_harness.core.self_healing_infrastructure import (
     SelfHealingInfrastructureEngine,
@@ -33,6 +34,7 @@ from saturnix_harness.schemas import (
     NeuralMemoryCompressionRequest,
     NeuralMemoryRecallRequest,
     NeuralMemoryStoreRequest,
+    OmegaRunRequest,
     SaturnixExecutionRequest,
     SaturnixExecutionResult,
     SecurityScanRequest,
@@ -105,6 +107,21 @@ class CoreOrchestrator:
             memory=self.memory,
             monitoring=self.monitoring,
         )
+        self.omega_engine = OmegaEngine(
+            intent_mapper=self.intent_mapper,
+            brain_router=self.brain_router,
+            tool_intelligence_router=self.tool_intelligence_router,
+            agent_constructor=self.agent_constructor,
+            workflow_planner=self.cognitive_workflow_planner,
+            consensus_engine=self.consensus_engine,
+            execution_engine=self.execution_engine,
+            improvement_engine=self.improvement_engine,
+            neural_memory_engine=self.neural_memory_engine,
+            distributed_engine=self.distributed_intelligence_engine,
+            self_healing_engine=self.self_healing_infrastructure_engine,
+            security_sentinel=self.security_sentinel,
+            monitoring=self.monitoring,
+        )
 
     async def construct_agent(self, request: ConstructAgentRequest):
         spec = self.agent_constructor.construct_for_request(request)
@@ -121,6 +138,9 @@ class CoreOrchestrator:
 
     async def execute_goal(self, request: SaturnixExecutionRequest):
         return await self.execution_engine.execute_goal(request)
+
+    async def run_omega(self, request: OmegaRunRequest):
+        return await self.omega_engine.run(request)
 
     async def run_consensus(self, request: ConsensusRequest):
         return await self.consensus_engine.run_consensus(request)

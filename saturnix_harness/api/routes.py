@@ -23,6 +23,7 @@ from saturnix_harness.schemas import (
     OllamaCodeGenerateRequest,
     OllamaGenerateRequest,
     OllamaSummarizeRequest,
+    OmegaRunRequest,
     SaveMemoryRequest,
     SearchMemoryRequest,
     SaturnixExecutionRequest,
@@ -97,6 +98,14 @@ async def route_brain(
     orchestrator: CoreOrchestrator = Depends(get_orchestrator),
 ):
     return orchestrator.brain_router.route_task(request)
+
+
+@router.post("/omega/run")
+async def run_omega(
+    request: OmegaRunRequest,
+    orchestrator: CoreOrchestrator = Depends(get_orchestrator),
+):
+    return await orchestrator.run_omega(request)
 
 
 @router.post("/consensus/run")

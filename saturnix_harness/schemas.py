@@ -454,6 +454,43 @@ class SelfHealingInfrastructureResult(BaseModel):
     resilience_plan: list[str]
 
 
+class OmegaRunRequest(BaseModel):
+    goal: str
+    input: str | None = None
+    task_type: str = ""
+    privacy_level: str = "standard"
+    speed_priority: str = "normal"
+    context_size: str = "medium"
+    output_format: str = "markdown"
+    local_only: bool = False
+    execute: bool = True
+    use_consensus: bool = True
+    persist_memory: bool = True
+    optimize_infrastructure: bool = True
+    auto_improve: bool = True
+    max_agents: int = Field(default=6, ge=1, le=12)
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+
+class OmegaRunResult(BaseModel):
+    goal: str
+    operating_mode: str = "SATURNIX-HARNESS OMEGA"
+    detected_intent: dict[str, Any]
+    autonomous_agents: dict[str, Any]
+    brain_routing: dict[str, Any]
+    tool_routing: dict[str, Any]
+    workflow_plan: dict[str, Any]
+    security_scan: dict[str, Any]
+    consensus: dict[str, Any] | None = None
+    execution_result: dict[str, Any]
+    verification_result: dict[str, Any]
+    recursive_improvement: dict[str, Any]
+    long_term_memory: dict[str, Any]
+    infrastructure_optimization: dict[str, Any]
+    evolution_plan: list[str]
+    next_actions: list[str]
+
+
 class AgentSpec(BaseModel):
     name: str
     role: str
