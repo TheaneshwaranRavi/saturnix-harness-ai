@@ -677,12 +677,74 @@ SATURNIX includes a Groq-backed voice layer:
 Voice input -> Groq STT -> command extraction -> SATURNIX Core -> response -> Groq TTS
 ```
 
+The Voice Cognitive Agent adds session-aware conversational control:
+
+```text
+Voice Input
+  -> Speech-to-Text
+  -> Intent Analysis
+  -> Brain Routing
+  -> Memory Recall
+  -> Risk Confirmation
+  -> Workflow Execution
+  -> Response Generation
+  -> Optional Text-to-Speech
+  -> Context Persistence
+```
+
 Endpoints:
 
 - `POST /v1/voice/transcribe`
 - `POST /v1/voice/tts`
 - `POST /v1/voice/command`
 - `POST /v1/voice/run`
+- `POST /v1/voice/cognitive/turn`
+- `POST /v1/voice/cognitive/run`
+
+Low-latency transcript turn:
+
+```bash
+curl -X POST http://localhost:8088/v1/voice/cognitive/turn \
+  -H "Content-Type: application/json" \
+  -d '{
+    "transcript": "Hey Saturnix continue the private workflow plan",
+    "session_id": "demo-session",
+    "low_latency_mode": true,
+    "memory_limit": 5,
+    "synthesize_response": false
+  }'
+```
+
+Risky voice commands require confirmation before execution:
+
+```bash
+curl -X POST http://localhost:8088/v1/voice/cognitive/turn \
+  -H "Content-Type: application/json" \
+  -d '{
+    "transcript": "Saturnix delete the production database",
+    "session_id": "demo-session"
+  }'
+```
+
+The response includes `confirmation_required`, `confirmation_token`,
+`risk_assessment`, `stage_timings_ms`, and no `execution_result` until the user
+confirms. To proceed, send a follow-up turn with the token:
+
+```bash
+curl -X POST http://localhost:8088/v1/voice/cognitive/turn \
+  -H "Content-Type: application/json" \
+  -d '{
+    "transcript": "yes proceed",
+    "session_id": "demo-session",
+    "confirmation_token": "TOKEN_FROM_PREVIOUS_RESPONSE",
+    "confirmed": true
+  }'
+```
+
+Say `stop`, `cancel`, `interrupt`, or pass `"interrupt": true` to interrupt a
+pending command before execution. Session context is persisted under
+`saturnix:voice:{session_id}` memory so future turns can recall useful prior
+conversation state.
 
 Voice command extraction returns:
 
@@ -863,6 +925,7 @@ Current implemented areas include:
 - Neural Memory Engine
 - Ollama Provider
 - Voice Engine
+- Voice Cognitive Agent
 - Recursive Improvement Engine
 - Prompt loading
 - Configuration

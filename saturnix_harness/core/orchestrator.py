@@ -31,10 +31,12 @@ from saturnix_harness.schemas import (
     SaturnixExecutionRequest,
     SaturnixExecutionResult,
     SecurityScanRequest,
+    VoiceCognitiveTurnRequest,
     ToolRoutingRequest,
 )
 from saturnix_harness.tools.intelligence_router import ToolIntelligenceRouter
 from saturnix_harness.tools.router import ToolRouter
+from saturnix_harness.voice.cognitive_agent import VoiceCognitiveAgent
 from saturnix_harness.voice.engine import VoiceEngine
 
 
@@ -90,6 +92,11 @@ class CoreOrchestrator:
             monitoring=self.monitoring,
         )
         self.voice_engine = VoiceEngine(self.settings, self.brain_router)
+        self.voice_cognitive_agent = VoiceCognitiveAgent(
+            voice_engine=self.voice_engine,
+            memory=self.memory,
+            monitoring=self.monitoring,
+        )
 
     async def construct_agent(self, request: ConstructAgentRequest):
         spec = self.agent_constructor.construct_for_request(request)
@@ -151,6 +158,34 @@ class CoreOrchestrator:
             language=language,
             stt_prompt=stt_prompt,
             tts_voice=tts_voice,
+        )
+
+    async def execute_voice_cognitive_turn(self, request: VoiceCognitiveTurnRequest):
+        return await self.voice_cognitive_agent.run_turn(request, self.execute_goal)
+
+    async def execute_voice_cognitive_audio(
+        self,
+        audio: bytes,
+        filename: str = "audio.wav",
+        session_id: str | None = None,
+        user_id: str | None = None,
+        synthesize_response: bool = False,
+        language: str | None = None,
+        stt_prompt: str | None = None,
+        tts_voice: str | None = None,
+        low_latency_mode: bool = True,
+    ):
+        return await self.voice_cognitive_agent.run_audio_turn(
+            audio=audio,
+            filename=filename,
+            executor=self.execute_goal,
+            session_id=session_id,
+            user_id=user_id,
+            synthesize_response=synthesize_response,
+            language=language,
+            stt_prompt=stt_prompt,
+            tts_voice=tts_voice,
+            low_latency_mode=low_latency_mode,
         )
 
     async def run(self, request: HarnessRequest) -> HarnessResponse:

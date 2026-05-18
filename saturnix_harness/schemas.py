@@ -664,6 +664,49 @@ class VoiceWorkflowResult(BaseModel):
     tts_error: str | None = None
 
 
+class VoiceCognitiveTurnRequest(BaseModel):
+    transcript: str
+    session_id: str | None = None
+    user_id: str | None = None
+    confirmation_token: str | None = None
+    confirmed: bool = False
+    interrupt: bool = False
+    synthesize_response: bool = False
+    low_latency_mode: bool = True
+    memory_limit: int = Field(default=5, ge=0, le=20)
+    persist_context: bool = True
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+
+class VoiceRiskAssessment(BaseModel):
+    risk_level: Literal["low", "medium", "high", "critical"]
+    requires_confirmation: bool
+    risky_terms: list[str] = Field(default_factory=list)
+    reason: str
+    blocked_actions: list[str] = Field(default_factory=list)
+
+
+class VoiceCognitiveTurnResult(BaseModel):
+    session_id: str
+    turn_id: str
+    transcript: str
+    command: VoiceCommand | None = None
+    intent_analysis: dict[str, Any] = Field(default_factory=dict)
+    brain_routing: dict[str, Any] = Field(default_factory=dict)
+    memory_context: list[MemoryRecord] = Field(default_factory=list)
+    risk_assessment: VoiceRiskAssessment
+    confirmation_required: bool = False
+    confirmation_token: str | None = None
+    confirmation_prompt: str | None = None
+    interrupted: bool = False
+    execution_result: SaturnixExecutionResult | None = None
+    response_text: str
+    tts: VoiceSynthesisResult | None = None
+    tts_error: str | None = None
+    stage_timings_ms: dict[str, int] = Field(default_factory=dict)
+    memory_saved: dict[str, Any] = Field(default_factory=dict)
+
+
 class MemoryRecord(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid4()))
     namespace: str = "default"

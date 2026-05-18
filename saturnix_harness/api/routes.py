@@ -29,6 +29,7 @@ from saturnix_harness.schemas import (
     SecurityScanRequest,
     ToolRoutingRequest,
     UpdateMemoryRequest,
+    VoiceCognitiveTurnRequest,
     VoiceCommandRequest,
     VoiceSynthesisRequest,
 )
@@ -400,6 +401,46 @@ async def extract_voice_command(
     orchestrator: CoreOrchestrator = Depends(get_orchestrator),
 ):
     return orchestrator.voice_engine.extract_command(request.transcript)
+
+
+@router.post("/voice/cognitive/turn")
+async def run_voice_cognitive_turn(
+    request: VoiceCognitiveTurnRequest,
+    orchestrator: CoreOrchestrator = Depends(get_orchestrator),
+):
+    try:
+        return await orchestrator.execute_voice_cognitive_turn(request)
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+
+
+@router.post("/voice/cognitive/run")
+async def run_voice_cognitive_audio(
+    file: UploadFile,
+    session_id: str | None = None,
+    user_id: str | None = None,
+    synthesize_response: bool = False,
+    language: str | None = None,
+    stt_prompt: str | None = None,
+    tts_voice: str | None = None,
+    low_latency_mode: bool = True,
+    orchestrator: CoreOrchestrator = Depends(get_orchestrator),
+):
+    try:
+        content = await file.read()
+        return await orchestrator.execute_voice_cognitive_audio(
+            audio=content,
+            filename=file.filename or "audio.wav",
+            session_id=session_id,
+            user_id=user_id,
+            synthesize_response=synthesize_response,
+            language=language,
+            stt_prompt=stt_prompt,
+            tts_voice=tts_voice,
+            low_latency_mode=low_latency_mode,
+        )
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
 
 
 @router.post("/voice/run")
