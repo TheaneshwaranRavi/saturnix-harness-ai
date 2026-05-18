@@ -28,6 +28,7 @@ from saturnix_harness.schemas import (
     SaturnixExecutionRequest,
     SaturnixExecutionResult,
     SecurityScanRequest,
+    SelfHealingInfrastructureRequest,
     ToolRoutingRequest,
     UpdateMemoryRequest,
     VoiceCognitiveTurnRequest,
@@ -128,6 +129,14 @@ async def scan_security(
     orchestrator: CoreOrchestrator = Depends(get_orchestrator),
 ):
     return await orchestrator.scan_security(request)
+
+
+@router.post("/self-healing/diagnose")
+async def diagnose_self_healing_infrastructure(
+    request: SelfHealingInfrastructureRequest,
+    orchestrator: CoreOrchestrator = Depends(get_orchestrator),
+):
+    return await orchestrator.diagnose_infrastructure(request)
 
 
 @router.post("/tools/route")

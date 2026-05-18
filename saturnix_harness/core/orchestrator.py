@@ -12,6 +12,9 @@ from saturnix_harness.core.execution_engine import ExecutionEngine, SaturnixExec
 from saturnix_harness.core.forge_engine import ForgeCodingEngine
 from saturnix_harness.core.intent_mapper import HumanIntentMapper
 from saturnix_harness.core.security_sentinel import SecuritySentinel
+from saturnix_harness.core.self_healing_infrastructure import (
+    SelfHealingInfrastructureEngine,
+)
 from saturnix_harness.core.verification_engine import VerificationEngine
 from saturnix_harness.core.workflow import NavigationWorkflowBuilder
 from saturnix_harness.memory.manager import MemoryManager
@@ -33,6 +36,7 @@ from saturnix_harness.schemas import (
     SaturnixExecutionRequest,
     SaturnixExecutionResult,
     SecurityScanRequest,
+    SelfHealingInfrastructureRequest,
     VoiceCognitiveTurnRequest,
     ToolRoutingRequest,
 )
@@ -77,6 +81,7 @@ class CoreOrchestrator:
         self.consensus_engine = ConsensusEngine(self.brain_router)
         self.distributed_intelligence_engine = DistributedIntelligenceEngine()
         self.security_sentinel = SecuritySentinel()
+        self.self_healing_infrastructure_engine = SelfHealingInfrastructureEngine()
         self.forge_engine = ForgeCodingEngine(
             brain_router=self.brain_router,
             tool_router=self.tool_intelligence_router,
@@ -131,6 +136,9 @@ class CoreOrchestrator:
 
     async def scan_security(self, request: SecurityScanRequest):
         return self.security_sentinel.scan(request)
+
+    async def diagnose_infrastructure(self, request: SelfHealingInfrastructureRequest):
+        return self.self_healing_infrastructure_engine.diagnose(request)
 
     async def route_tools(self, request: ToolRoutingRequest):
         return self.tool_intelligence_router.route(request)

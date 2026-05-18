@@ -609,6 +609,43 @@ The Distributed Intelligence Engine coordinates:
 It returns `node_assignments`, `resource_usage`, `optimization_plan`, and
 `failover_strategy`.
 
+Diagnose and recover infrastructure failures:
+
+```bash
+curl -X POST http://localhost:8088/v1/self-healing/diagnose \
+  -H "Content-Type: application/json" \
+  -d '{
+    "containers": {
+      "saturnix-api": "crashed",
+      "ollama": "oom killed"
+    },
+    "apis": {
+      "openai": "timeout",
+      "gemini": "503"
+    },
+    "memory_usage_percent": 94,
+    "disk_usage_percent": 91,
+    "network_status": "degraded",
+    "workflows": {
+      "agent-build": "corrupted"
+    },
+    "processes": {
+      "worker-7": "hanging for 300s"
+    },
+    "active_brain": "GPT",
+    "fallback_brains": ["Claude", "Gemini", "Gemma via Ollama"],
+    "auto_recover": true
+  }'
+```
+
+The Self-Healing Infrastructure Engine monitors crashed containers, failed
+APIs, memory overload, disk pressure, network failures, corrupted workflows,
+and hanging processes. It returns incidents, recovery actions, fallback brain
+selection, module isolation guidance, workflow rebuild steps, operator
+notifications, and a resilience plan. Recovery actions are marked with
+`safe_to_auto_execute` and `confirmation_required` so SATURNIX can automate
+bounded repairs while protecting destructive cleanup or state changes.
+
 Run multi-brain consensus:
 
 ```bash
@@ -958,6 +995,7 @@ Current implemented areas include:
 - Tool Intelligence Router
 - Forge Coding Engine
 - Distributed Intelligence Engine
+- Self-Healing Infrastructure Engine
 - Memory Manager
 - Neural Memory Engine
 - Ollama Provider

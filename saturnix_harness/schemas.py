@@ -412,6 +412,48 @@ class DistributedIntelligenceResult(BaseModel):
     failover_strategy: list[str]
 
 
+class SelfHealingInfrastructureRequest(BaseModel):
+    containers: dict[str, str] = Field(default_factory=dict)
+    apis: dict[str, str] = Field(default_factory=dict)
+    memory_usage_percent: float | None = Field(default=None, ge=0.0, le=100.0)
+    disk_usage_percent: float | None = Field(default=None, ge=0.0, le=100.0)
+    network_status: str = "healthy"
+    workflows: dict[str, str] = Field(default_factory=dict)
+    processes: dict[str, str] = Field(default_factory=dict)
+    active_brain: str = "GPT"
+    fallback_brains: list[str] = Field(default_factory=lambda: ["Claude", "Gemini"])
+    auto_recover: bool = False
+    notify_user: bool = True
+
+
+class SelfHealingIncident(BaseModel):
+    component: str
+    failure_type: str
+    severity: Literal["low", "medium", "high", "critical"]
+    evidence: str
+    impact: str
+
+
+class SelfHealingAction(BaseModel):
+    action: str
+    target: str
+    reason: str
+    safe_to_auto_execute: bool = False
+    confirmation_required: bool = True
+
+
+class SelfHealingInfrastructureResult(BaseModel):
+    overall_status: Literal["healthy", "degraded", "critical", "recovering"]
+    health_score: int = Field(ge=0, le=100)
+    incidents_detected: list[SelfHealingIncident]
+    recovery_actions: list[SelfHealingAction]
+    fallback_brain: str | None = None
+    isolation_plan: list[str]
+    workflow_rebuilds: list[str]
+    notifications: list[str]
+    resilience_plan: list[str]
+
+
 class AgentSpec(BaseModel):
     name: str
     role: str
