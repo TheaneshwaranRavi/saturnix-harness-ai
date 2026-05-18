@@ -4,6 +4,7 @@ from saturnix_harness.brains.router import BrainRouter
 from saturnix_harness.brains.ollama_provider import SaturnixOllamaProvider
 from saturnix_harness.core.cognitive_workflow_planner import CognitiveWorkflowPlanner
 from saturnix_harness.core.consensus_engine import ConsensusEngine
+from saturnix_harness.core.distributed_intelligence import DistributedIntelligenceEngine
 from saturnix_harness.core.improvement_engine import RecursiveImprovementEngine
 from saturnix_harness.config import Settings, get_settings
 from saturnix_harness.core.agent_constructor import AgentConstructor
@@ -21,6 +22,7 @@ from saturnix_harness.schemas import (
     CognitiveWorkflowPlanRequest,
     ConsensusRequest,
     ConstructAgentRequest,
+    DistributedIntelligenceRequest,
     DynamicAgentRequest,
     ForgeBuildRequest,
     HarnessRequest,
@@ -73,6 +75,7 @@ class CoreOrchestrator:
         )
         self.verifier = VerificationEngine(self.brain_router)
         self.consensus_engine = ConsensusEngine(self.brain_router)
+        self.distributed_intelligence_engine = DistributedIntelligenceEngine()
         self.security_sentinel = SecuritySentinel()
         self.forge_engine = ForgeCodingEngine(
             brain_router=self.brain_router,
@@ -116,6 +119,12 @@ class CoreOrchestrator:
 
     async def run_consensus(self, request: ConsensusRequest):
         return await self.consensus_engine.run_consensus(request)
+
+    async def plan_distributed_intelligence(
+        self,
+        request: DistributedIntelligenceRequest,
+    ):
+        return self.distributed_intelligence_engine.plan(request)
 
     async def plan_cognitive_workflow(self, request: CognitiveWorkflowPlanRequest):
         return self.cognitive_workflow_planner.plan(request)

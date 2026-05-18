@@ -573,6 +573,42 @@ the Brain Router, selects implementation tools through the Tool Intelligence
 Router, scans the construction brief with Security Sentinel, and stores the
 plan in `saturnix:forge` memory when `persist_plan` is enabled.
 
+Coordinate distributed SATURNIX hardware nodes:
+
+```bash
+curl -X POST http://localhost:8088/v1/distributed/plan \
+  -H "Content-Type: application/json" \
+  -d '{
+    "mission": "Coordinate SATURNIX distributed intelligence nodes",
+    "workloads": [
+      "centralized orchestration and brain routing",
+      "edge automation for Raspberry Pi sensors",
+      "memory vault synchronization",
+      "cloud large context analysis"
+    ],
+    "privacy_level": "private",
+    "latency_priority": "low_latency",
+    "node_health": {
+      "Raspberry Pi": "healthy",
+      "External Storage": "healthy"
+    }
+  }'
+```
+
+The Distributed Intelligence Engine coordinates:
+
+- `MacBook M1` as the Cognitive Core for orchestration, routing, verification,
+  and secret-sensitive work
+- `Raspberry Pi` as the Edge Automation Node for sensors, safe local actions,
+  offline queues, and signed command receipts
+- `External Storage` as the Memory Vault for encrypted snapshots, backups,
+  Chroma/SQLite artifacts, and recovery checkpoints
+- `Cloud APIs` as Intelligence Expansion for large-context and specialized
+  provider calls after privacy checks
+
+It returns `node_assignments`, `resource_usage`, `optimization_plan`, and
+`failover_strategy`.
+
 Run multi-brain consensus:
 
 ```bash
@@ -921,6 +957,7 @@ Current implemented areas include:
 - Execution Engine
 - Tool Intelligence Router
 - Forge Coding Engine
+- Distributed Intelligence Engine
 - Memory Manager
 - Neural Memory Engine
 - Ollama Provider

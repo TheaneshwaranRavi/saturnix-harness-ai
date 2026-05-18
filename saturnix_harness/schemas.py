@@ -377,6 +377,41 @@ class ForgeBuildResult(BaseModel):
     memory_saved: dict[str, Any] = Field(default_factory=dict)
 
 
+class DistributedIntelligenceRequest(BaseModel):
+    mission: str = "Coordinate SATURNIX distributed intelligence nodes"
+    workloads: list[str] = Field(default_factory=list)
+    node_health: dict[str, str] = Field(default_factory=dict)
+    privacy_level: str = "standard"
+    latency_priority: str = "normal"
+    synchronization_mode: str = "eventual"
+    include_cloud_apis: bool = True
+
+
+class DistributedNodeAssignment(BaseModel):
+    node: str
+    role: str
+    assigned_workloads: list[str]
+    reason: str
+    sync_policy: str
+
+
+class DistributedResourceUsage(BaseModel):
+    node: str
+    cpu_profile: str
+    memory_profile: str
+    storage_profile: str
+    network_profile: str
+    constraints: list[str] = Field(default_factory=list)
+    monitoring_signals: list[str] = Field(default_factory=list)
+
+
+class DistributedIntelligenceResult(BaseModel):
+    node_assignments: list[DistributedNodeAssignment]
+    resource_usage: list[DistributedResourceUsage]
+    optimization_plan: list[str]
+    failover_strategy: list[str]
+
+
 class AgentSpec(BaseModel):
     name: str
     role: str

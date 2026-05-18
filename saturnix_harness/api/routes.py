@@ -10,6 +10,7 @@ from saturnix_harness.schemas import (
     CognitiveWorkflowPlanRequest,
     ConsensusRequest,
     ConstructAgentRequest,
+    DistributedIntelligenceRequest,
     DynamicAgentRequest,
     ForgeBuildRequest,
     HarnessRequest,
@@ -103,6 +104,14 @@ async def run_consensus(
     orchestrator: CoreOrchestrator = Depends(get_orchestrator),
 ):
     return await orchestrator.run_consensus(request)
+
+
+@router.post("/distributed/plan")
+async def plan_distributed_intelligence(
+    request: DistributedIntelligenceRequest,
+    orchestrator: CoreOrchestrator = Depends(get_orchestrator),
+):
+    return await orchestrator.plan_distributed_intelligence(request)
 
 
 @router.post("/workflows/plan")
