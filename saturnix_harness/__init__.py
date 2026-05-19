@@ -1,7 +1,7 @@
-"""SATURNIX-HARNESS package."""
+"""SATURNIX-HARNESS package.
 
-from saturnix_harness.config import Settings
-from saturnix_harness.core.orchestrator import CoreOrchestrator
+The package initializer stays intentionally lightweight so FastAPI, CLI, and
+test startup do not import the full agent/brain/memory graph eagerly.
+"""
 
-__all__ = ["CoreOrchestrator", "Settings"]
-
+__all__ = []

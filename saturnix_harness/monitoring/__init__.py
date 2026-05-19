@@ -1,3 +1,3 @@
-from saturnix_harness.monitoring.events import MonitoringLayer
+"""Monitoring and audit event modules."""
 
-__all__ = ["MonitoringLayer"]
+__all__ = []

@@ -44,6 +44,25 @@ class MemoryType(str, Enum):
     vector_memory = "vector_memory"
 
 
+class PermissionLevel(str, Enum):
+    read_only = "READ_ONLY"
+    memory_write = "MEMORY_WRITE"
+    tool_execution = "TOOL_EXECUTION"
+    file_access = "FILE_ACCESS"
+    network_access = "NETWORK_ACCESS"
+    admin_security = "ADMIN_SECURITY"
+
+
+class DataClass(str, Enum):
+    public_data = "public_data"
+    project_data = "project_data"
+    personal_memory = "personal_memory"
+    api_secrets = "api_secrets"
+    agent_logs = "agent_logs"
+    voice_records = "voice_records"
+    critical_backups = "critical_backups"
+
+
 class BrainMessage(BaseModel):
     role: Literal["system", "user", "assistant", "tool"] = "user"
     content: str
@@ -489,6 +508,123 @@ class OmegaRunResult(BaseModel):
     infrastructure_optimization: dict[str, Any]
     evolution_plan: list[str]
     next_actions: list[str]
+
+
+class DashboardSecurityScanRequest(BaseModel):
+    input_text: str = ""
+    source: str = "dashboard"
+    file_paths: list[str] = Field(default_factory=list)
+    commands: list[str] = Field(default_factory=list)
+    workflow: dict[str, Any] = Field(default_factory=dict)
+    request_count_last_minute: int = 0
+    external_connections: list[str] = Field(default_factory=list)
+    auth_context: dict[str, Any] = Field(default_factory=dict)
+
+
+class DashboardSecurityScanResult(BaseModel):
+    security_score: int = Field(ge=0, le=100)
+    threat_level: Literal["LOW", "MEDIUM", "HIGH", "CRITICAL"]
+    detected_risks: list[str]
+    blocked_actions: list[str]
+    recommended_fixes: list[str]
+    lockdown_required: bool
+
+
+class DashboardAgentDefinition(BaseModel):
+    name: str
+    agent_name: str
+    purpose: str
+    best_brain: str
+    tools: list[str]
+    permissions: list[PermissionLevel]
+    memory_access_level: str
+    risk_level: Literal["LOW", "MEDIUM", "HIGH", "CRITICAL"]
+    validation_rules: list[str]
+
+
+class CreateDashboardAgentRequest(BaseModel):
+    name: str
+    purpose: str
+    best_brain: str = "GPT"
+    tools: list[str] = Field(default_factory=list)
+    permissions: list[PermissionLevel] = Field(default_factory=lambda: [PermissionLevel.read_only])
+    memory_access_level: str = "project"
+    risk_level: Literal["LOW", "MEDIUM", "HIGH", "CRITICAL"] = "LOW"
+    validation_rules: list[str] = Field(default_factory=list)
+
+
+class ExecuteDashboardAgentRequest(BaseModel):
+    agent_name: str
+    goal: str
+    context: str | None = None
+    dry_run: bool = True
+
+
+class DashboardMemorySaveRequest(BaseModel):
+    content: str
+    memory_type: MemoryType = MemoryType.user_preferences
+    namespace: str = "user:theaneshwaran"
+    title: str | None = None
+    tags: list[str] = Field(default_factory=list)
+    user_permission: bool = True
+
+
+class DashboardMemorySearchRequest(BaseModel):
+    query: str
+    namespace: str = "user:theaneshwaran"
+    limit: int = Field(default=10, ge=1, le=50)
+
+
+class DashboardWorkflowRunRequest(BaseModel):
+    workflow_name: str
+    goal: str
+    dry_run: bool = True
+    requires_confirmation: bool = True
+
+
+class ApiKeyStoreRequest(BaseModel):
+    provider: str
+    label: str
+    api_key: str
+
+
+class UserProfile(BaseModel):
+    name: str = "Theaneshwaran Ravi"
+    preferred_projects: list[str] = Field(
+        default_factory=lambda: [
+            "agentic AI",
+            "embedded systems",
+            "automation",
+            "AI jobs",
+            "semiconductor tools",
+        ]
+    )
+    hardware: list[str] = Field(
+        default_factory=lambda: [
+            "MacBook Air M1",
+            "Raspberry Pi 4B+",
+            "external SSD",
+            "HDD vault",
+        ]
+    )
+    preferred_style: str = "technical, structured, practical"
+    learning_mode: str = "teacher-like guidance"
+
+
+class DataGuardianClassifyRequest(BaseModel):
+    content: str
+    path: str | None = None
+    intended_action: str = "store"
+
+
+class DataGuardianClassifyResult(BaseModel):
+    data_class: DataClass
+    sensitivity_score: int = Field(ge=0, le=100)
+    encryption_required: bool
+    storage_namespace: str
+    allowed_actions: list[str]
+    blocked_actions: list[str]
+    retention_policy: str
 
 
 class AgentSpec(BaseModel):

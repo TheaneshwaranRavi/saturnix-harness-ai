@@ -114,6 +114,7 @@ SATURNIX-HARNESS/
     agents/              Agent runtime, blueprints, default agent catalog
     brains/              Brain providers and routing logic
     core/                Intent, workflow, execution, verification, orchestration
+    dashboard/           Infrastructure dashboard services, security, data guardian
     memory/              SQLite structured memory and ChromaDB vector memory
     monitoring/          Logging and runtime event capture
     prompts/             Packaged prompt templates
@@ -124,6 +125,7 @@ SATURNIX-HARNESS/
     main.py              FastAPI app factory
     schemas.py           Pydantic contracts
   examples/              Example agents and workflows
+  frontend/              Next.js infrastructure dashboard
   tests/                 Unit and integration tests
   data/                  Local runtime data mount
   Dockerfile
@@ -208,6 +210,19 @@ Memory:
 SATURNIX_SQLITE_PATH=./data/saturnix.sqlite3
 SATURNIX_CHROMA_PATH=./data/chroma
 SATURNIX_ENABLE_CHROMA=true
+```
+
+Dashboard security:
+
+```env
+SATURNIX_DASHBOARD_AUTH_REQUIRED=false
+SATURNIX_JWT_SECRET=
+SATURNIX_DASHBOARD_ENCRYPTION_KEY=
+SATURNIX_CORS_ORIGINS=http://localhost:3000,http://127.0.0.1:3000
+SATURNIX_RATE_LIMIT_PER_MINUTE=120
+SATURNIX_LOCKDOWN_MODE=false
+SATURNIX_ALLOWED_STORAGE_ROOTS=./data,./backups
+NEXT_PUBLIC_SATURNIX_API_BASE=http://localhost:8088
 ```
 
 Never hardcode API keys in source files. Keep secrets in `.env` or your
@@ -355,6 +370,7 @@ docker compose up --build
 Services:
 
 - `saturnix-api`: FastAPI on port `8088`
+- `saturnix-dashboard`: Next.js dashboard on port `3000`
 - `ollama`: Ollama daemon on port `11434`
 - `data`: local SQLite and Chroma storage mount
 
@@ -366,6 +382,180 @@ docker compose exec ollama ollama pull deepseek-coder-v2
 docker compose exec ollama ollama pull qwen2.5-coder
 docker compose exec ollama ollama pull minimax
 ```
+
+## Infrastructure Dashboard
+
+SATURNIX-HARNESS includes a dark, cybersecurity-focused infrastructure
+dashboard for controlling and monitoring the personal AI operating model.
+
+```text
+Browser Dashboard
+  |
+  v
+Next.js + TypeScript + Tailwind + shadcn-style components
+  |
+  v
+FastAPI Dashboard API
+  |
+  +-- Agent Control Center
+  +-- Brain Router Monitor
+  +-- Memory Vault Dashboard
+  +-- Security Command Center
+  +-- Data Protection Center
+  +-- Workflow Automation Panel
+  +-- Raspberry Pi Edge Node Monitor
+  +-- Voice Agent Console
+  +-- API Key Management Panel
+  +-- Logs and Audit Trail
+  +-- Backup and Recovery Panel
+  +-- System Health and Analytics
+```
+
+Run the backend:
+
+```bash
+uvicorn saturnix_harness.main:app --reload --host 0.0.0.0 --port 8088
+```
+
+Run the frontend:
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Open:
+
+```text
+http://localhost:3000
+```
+
+Dashboard API endpoints:
+
+- `GET /health`
+- `GET /dashboard/overview`
+- `GET /agents`
+- `POST /agents/create`
+- `POST /agents/execute`
+- `GET /brains`
+- `POST /brains/route`
+- `GET /memory`
+- `POST /memory/save`
+- `POST /memory/search`
+- `GET /security/status`
+- `GET /security/audit-logs`
+- `POST /security/scan-input`
+- `POST /security/lockdown`
+- `GET /edge/pi/status`
+- `GET /storage/status`
+- `GET /workflows`
+- `POST /workflows/run`
+- `GET /voice/status`
+- `POST /voice/transcribe`
+- `GET /logs`
+- `GET /api-keys`
+- `POST /api-keys/store`
+- `GET /profile`
+- `POST /data/classify`
+
+Example dashboard security scan:
+
+```bash
+curl -X POST http://localhost:8088/security/scan-input \
+  -H "Content-Type: application/json" \
+  -d '{
+    "input_text": "Summarize this workflow and protect API keys.",
+    "source": "dashboard"
+  }'
+```
+
+Example response:
+
+```json
+{
+  "security_score": 100,
+  "threat_level": "LOW",
+  "detected_risks": [],
+  "blocked_actions": [],
+  "recommended_fixes": ["No immediate security issues detected."],
+  "lockdown_required": false
+}
+```
+
+## Dashboard Security Architecture
+
+SATURNIX Security Sentinel protects the dashboard with:
+
+- JWT authentication support for protected deployments
+- Role checks for admin-only actions such as lockdown and API key writes
+- Rate limiting middleware for API endpoints
+- Secure response headers
+- CORS allowlisting
+- Prompt injection detection
+- Secret exposure detection and redaction
+- Suspicious path and path traversal detection
+- Unsafe command and dangerous workflow blocking
+- Audit logging for sensitive actions
+- Emergency lockdown mode
+
+Security output schema:
+
+```json
+{
+  "security_score": 0,
+  "threat_level": "LOW | MEDIUM | HIGH | CRITICAL",
+  "detected_risks": [],
+  "blocked_actions": [],
+  "recommended_fixes": [],
+  "lockdown_required": false
+}
+```
+
+## Data Guardian
+
+SATURNIX Data Guardian classifies data before memory or storage actions.
+
+Supported data classes:
+
+- `public_data`
+- `project_data`
+- `personal_memory`
+- `api_secrets`
+- `agent_logs`
+- `voice_records`
+- `critical_backups`
+
+Sensitive classes are encrypted before storage. Memory rules block raw
+passwords, unencrypted API keys, unnecessary sensitive personal data, and
+private documents unless the user grants permission.
+
+## Dashboard Agents
+
+The dashboard ships with least-privilege defaults:
+
+- Personal Assistant Agent
+- Coding Agent
+- Research Agent
+- Security Agent
+- Memory Agent
+- Workflow Agent
+- Voice Agent
+- Raspberry Pi Edge Agent
+- Job Application Agent
+- Semiconductor Design Agent
+
+Permissions are explicit and minimal:
+
+- `READ_ONLY`
+- `MEMORY_WRITE`
+- `TOOL_EXECUTION`
+- `FILE_ACCESS`
+- `NETWORK_ACCESS`
+- `ADMIN_SECURITY`
+
+Zero-trust rule: no agent is trusted by default. Every sensitive action is
+validated before execution, and high-risk actions require confirmation.
 
 ## Example API Request
 
@@ -913,6 +1103,7 @@ Recommended local setup:
 
 ```bash
 brew install python@3.11
+brew install node
 brew install ollama
 ollama serve
 ```
@@ -926,6 +1117,15 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
+Start the dashboard on Apple Silicon:
+
+```bash
+uvicorn saturnix_harness.main:app --reload --port 8088
+cd frontend
+npm install
+npm run dev
+```
+
 Useful Apple Silicon notes:
 
 - Prefer smaller local models first, such as `gemma3`, before pulling larger coding models.
@@ -933,6 +1133,9 @@ Useful Apple Silicon notes:
 - Enable Ollama only after `ollama serve` is running and models are pulled.
 - ChromaDB can run locally, but if dependency startup is slow during early development, set `SATURNIX_ENABLE_CHROMA=false`.
 - If a package has wheel issues on a newer Python version, use Python 3.11 for the smoothest dependency path.
+- Keep the FastAPI backend on `localhost:8088` and the Next.js dashboard on
+  `localhost:3000` unless you also update `SATURNIX_CORS_ORIGINS` and
+  `NEXT_PUBLIC_SATURNIX_API_BASE`.
 
 ## Raspberry Pi Edge-Node Future Plan
 
@@ -974,10 +1177,30 @@ Future edge transport options:
 - WebSockets for live voice sessions
 - Signed payloads for trusted edge-node identity
 
+## Cybersecurity Checklist
+
+Before using SATURNIX-HARNESS with real credentials or private data:
+
+- Keep API keys in `.env` or a secret manager only.
+- Set `SATURNIX_DASHBOARD_AUTH_REQUIRED=true` outside local development.
+- Set a strong `SATURNIX_JWT_SECRET`.
+- Set a unique `SATURNIX_DASHBOARD_ENCRYPTION_KEY`.
+- Restrict `SATURNIX_CORS_ORIGINS` to trusted dashboard origins.
+- Keep `SATURNIX_ALLOWED_STORAGE_ROOTS` narrow.
+- Run security scans before executing generated workflows.
+- Confirm high-risk file, network, tool, and admin actions manually.
+- Do not store raw passwords or unencrypted API keys in memory.
+- Review `/security/audit-logs` and `/logs` after sensitive actions.
+- Test lockdown mode before relying on it operationally.
+- Run containers as non-root users.
+- Back up SQLite, Chroma, and dashboard configuration regularly.
+
 ## Roadmap
 
 Near term:
 
+- Add browser push updates for live dashboard metrics
+- Add dashboard login and token issuance UI
 - Add richer tool schemas and tool execution permissions
 - Add request/response tracing for every brain call
 - Add n8n webhook tool integration
@@ -987,10 +1210,11 @@ Near term:
 Medium term:
 
 - Add streaming execution events
-- Add UI dashboard for runs, agents, memory, and brain health
+- Add persistent dashboard widgets for runs, agents, memory, and brain health
 - Add evaluation harness for comparing brain outputs
 - Add local embedding model support for Chroma
 - Add agent marketplace-style blueprint registry
+- Add Raspberry Pi signed command agent
 
 Long term:
 
@@ -1000,6 +1224,7 @@ Long term:
 - Multi-project memory isolation
 - Human approval gates for high-risk tool actions
 - Production deployment templates for cloud and homelab environments
+- External storage vault synchronization and encrypted recovery snapshots
 
 ## Testing
 

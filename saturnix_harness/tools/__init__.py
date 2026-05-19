@@ -1,4 +1,3 @@
-from saturnix_harness.tools.intelligence_router import ToolIntelligenceRouter
-from saturnix_harness.tools.router import ToolRouter
+"""Tool routing modules."""
 
-__all__ = ["ToolIntelligenceRouter", "ToolRouter"]
+__all__ = []

@@ -57,6 +57,14 @@ class Settings(BaseSettings):
     saturnix_chroma_path: Path = Field(default=Path("./data/chroma"))
     saturnix_enable_chroma: bool = True
 
+    saturnix_dashboard_auth_required: bool = False
+    saturnix_jwt_secret: SecretStr | None = None
+    saturnix_dashboard_encryption_key: SecretStr | None = None
+    saturnix_cors_origins: str = "http://localhost:3000,http://127.0.0.1:3000"
+    saturnix_rate_limit_per_minute: int = 120
+    saturnix_lockdown_mode: bool = False
+    saturnix_allowed_storage_roots: str = "./data,./backups"
+
     n8n_webhook_url: str | None = None
 
     @property
