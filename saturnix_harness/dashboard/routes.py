@@ -41,6 +41,15 @@ async def dashboard_overview(
     return await service.overview()
 
 
+@dashboard_router.get("/dashboard/doctrine")
+async def dashboard_doctrine(
+    service: DashboardService = Depends(get_dashboard_service),
+    identity: dict = Depends(require_dashboard_identity),
+):
+    _ = identity
+    return service.operating_doctrine()
+
+
 @dashboard_router.get("/agents")
 async def list_dashboard_agents(
     service: DashboardService = Depends(get_dashboard_service),

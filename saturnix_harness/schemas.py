@@ -558,6 +558,7 @@ class ExecuteDashboardAgentRequest(BaseModel):
     goal: str
     context: str | None = None
     dry_run: bool = True
+    approved: bool = False
 
 
 class DashboardMemorySaveRequest(BaseModel):
@@ -580,6 +581,7 @@ class DashboardWorkflowRunRequest(BaseModel):
     goal: str
     dry_run: bool = True
     requires_confirmation: bool = True
+    approved: bool = False
 
 
 class ApiKeyStoreRequest(BaseModel):

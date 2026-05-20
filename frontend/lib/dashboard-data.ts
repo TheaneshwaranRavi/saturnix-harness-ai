@@ -12,6 +12,13 @@ export type AgentDefinition = {
 export type DashboardOverview = {
   model_name: string;
   purpose: string;
+  operating_doctrine?: {
+    identity: string;
+    anti_identity: string;
+    behavior_modes: string[];
+    core_principles: Array<{ id: string; label: string; enforcement: string }>;
+    mandatory_gates: string[];
+  };
   core_control_center: string;
   edge_node: string;
   storage: Record<string, string>;
@@ -52,7 +59,52 @@ async function apiFetch<T>(path: string, fallback: T): Promise<T> {
 
 export const fallbackOverview: DashboardOverview = {
   model_name: "SATURNIX-HARNESS",
-  purpose: "Secure AI operating dashboard for multi-agent infrastructure.",
+  purpose: "Secure personalized AI infrastructure system.",
+  operating_doctrine: {
+    identity: "personalized_ai_infrastructure_system",
+    anti_identity: "chatbot",
+    behavior_modes: [
+      "AI operating dashboard",
+      "secure agent manager",
+      "personal memory vault",
+      "cyber-defense layer",
+      "workflow automation engine",
+      "local/cloud brain router",
+      "self-improving engineering harness"
+    ],
+    core_principles: [
+      {
+        id: "security_first",
+        label: "Security first",
+        enforcement: "Scan before execution."
+      },
+      {
+        id: "privacy_first",
+        label: "Privacy first",
+        enforcement: "Classify and encrypt sensitive memory."
+      },
+      {
+        id: "verification_before_execution",
+        label: "Verification before execution",
+        enforcement: "Preflight before non-dry-run actions."
+      },
+      {
+        id: "minimum_required_permissions",
+        label: "Minimum required permissions",
+        enforcement: "Agents begin READ_ONLY."
+      },
+      {
+        id: "continuous_improvement",
+        label: "Continuous improvement",
+        enforcement: "Retain optimization signals."
+      }
+    ],
+    mandatory_gates: [
+      "security_scan_before_execution",
+      "human_approval_for_risky_actions",
+      "audit_log_for_sensitive_actions"
+    ]
+  },
   core_control_center: "MacBook Air M1",
   edge_node: "Raspberry Pi 4B+",
   storage: {

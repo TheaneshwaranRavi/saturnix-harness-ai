@@ -8,6 +8,7 @@ from saturnix_harness.config import Settings
 from saturnix_harness.core.orchestrator import CoreOrchestrator
 from saturnix_harness.dashboard.crypto import SecretCipher
 from saturnix_harness.dashboard.data_guardian import DataGuardian
+from saturnix_harness.dashboard.doctrine import SaturnixOperatingDoctrine
 from saturnix_harness.dashboard.security import DashboardSecuritySentinel
 from saturnix_harness.schemas import (
     ApiKeyStoreRequest,
@@ -36,6 +37,7 @@ class DashboardService:
         self.settings: Settings = orchestrator.settings
         self.security = DashboardSecuritySentinel()
         self.data_guardian = DataGuardian(self.settings)
+        self.doctrine = SaturnixOperatingDoctrine()
         self.cipher = SecretCipher(self.settings)
         self._custom_agents: dict[str, DashboardAgentDefinition] = {}
         self._api_keys: dict[str, dict[str, Any]] = {}
@@ -48,9 +50,10 @@ class DashboardService:
         return {
             "model_name": "SATURNIX-HARNESS",
             "purpose": (
-                "Personal AI Harness Engineering Model for constructing, managing, "
-                "securing, and scaling agentic AI systems."
+                "Personal AI infrastructure system for constructing, managing, "
+                "securing, verifying, and scaling agentic AI systems."
             ),
+            "operating_doctrine": self.doctrine.summary(),
             "core_control_center": "MacBook Air M1",
             "edge_node": "Raspberry Pi 4B+",
             "storage": {
@@ -113,15 +116,43 @@ class DashboardService:
                 source=f"agent:{agent.name}",
             )
         )
-        if scan.lockdown_required or scan.blocked_actions:
-            self.audit("agent.execute.blocked", scan.model_dump(mode="json"))
-            return {"ok": False, "security": scan.model_dump(mode="json")}
+        classification = self.data_guardian.classify(
+            DataGuardianClassifyRequest(
+                content=f"{request.goal}\n{request.context or ''}",
+                intended_action="agent_execute",
+            )
+        )
+        preflight = self.doctrine.preflight_agent_execution(
+            agent=agent,
+            security=scan,
+            classification=classification,
+            dry_run=request.dry_run,
+            approved=request.approved,
+        )
+        if not preflight["allowed"]:
+            self.audit(
+                "agent.execute.blocked",
+                {
+                    "agent": agent.name,
+                    "security": scan.model_dump(mode="json"),
+                    "doctrine": preflight,
+                },
+            )
+            return {
+                "ok": False,
+                "confirmation_required": preflight["approval_required"],
+                "security": scan.model_dump(mode="json"),
+                "classification": classification.model_dump(mode="json"),
+                "doctrine": preflight,
+            }
         if request.dry_run:
             return {
                 "ok": True,
                 "dry_run": True,
                 "agent": agent.model_dump(mode="json"),
                 "security": scan.model_dump(mode="json"),
+                "classification": classification.model_dump(mode="json"),
+                "doctrine": preflight,
             }
         result = await self.orchestrator.execute_goal(
             SaturnixExecutionRequest(
@@ -134,7 +165,7 @@ class DashboardService:
             )
         )
         self.audit("agent.execute", {"agent": agent.name, "goal": request.goal})
-        return {"ok": True, "result": result.model_dump(mode="json")}
+        return {"ok": True, "doctrine": preflight, "result": result.model_dump(mode="json")}
 
     async def brains(self) -> list[dict[str, Any]]:
         health = await self.orchestrator.brain_router.health()
@@ -199,6 +230,7 @@ class DashboardService:
             **result.model_dump(mode="json"),
             "lockdown_mode": self.lockdown_mode,
             "zero_trust": True,
+            "operating_doctrine": self.doctrine.summary(),
             "security_controls": [
                 "JWT authentication middleware",
                 "role-based access control",
@@ -231,6 +263,9 @@ class DashboardService:
                 "incident log created",
             ],
         }
+
+    def operating_doctrine(self) -> dict[str, Any]:
+        return self.doctrine.summary()
 
     def edge_status(self) -> dict[str, Any]:
         return {
@@ -270,11 +305,12 @@ class DashboardService:
     async def run_workflow(self, request: DashboardWorkflowRunRequest) -> dict[str, Any]:
         if self.lockdown_mode:
             return {"ok": False, "blocked": True, "reason": "Emergency lockdown mode is active."}
-        if request.requires_confirmation and not request.dry_run:
+        if request.requires_confirmation and not request.dry_run and not request.approved:
             return {
                 "ok": False,
                 "confirmation_required": True,
                 "reason": "Zero trust requires confirmation before workflow execution.",
+                "doctrine": self.doctrine.summary(),
             }
         if request.dry_run:
             return {"ok": True, "dry_run": True, "workflow": request.workflow_name}

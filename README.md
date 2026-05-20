@@ -435,6 +435,7 @@ Dashboard API endpoints:
 
 - `GET /health`
 - `GET /dashboard/overview`
+- `GET /dashboard/doctrine`
 - `GET /agents`
 - `POST /agents/create`
 - `POST /agents/execute`
@@ -482,6 +483,43 @@ Example response:
   "lockdown_required": false
 }
 ```
+
+## SATURNIX Operating Doctrine
+
+SATURNIX-HARNESS is not a chatbot. It is a personalized AI infrastructure
+system that must behave as:
+
+- AI operating dashboard
+- Secure agent manager
+- Personal memory vault
+- Cyber-defense layer
+- Workflow automation engine
+- Local/cloud brain router
+- Self-improving engineering harness
+
+The operating doctrine is exposed at:
+
+```bash
+curl http://localhost:8088/dashboard/doctrine
+```
+
+Core principles:
+
+- Security first
+- Privacy first
+- Personalization first
+- Verification before execution
+- Minimum required permissions
+- Local-first memory
+- Multi-brain intelligence
+- Human approval for risky actions
+- Full audit trail
+- Continuous improvement
+
+The dashboard execution path enforces this doctrine before agent execution. A
+high-risk non-dry-run request without approval returns a blocked response with
+`confirmation_required: true`, the security scan, data classification, and the
+principles enforced.
 
 ## Dashboard Security Architecture
 

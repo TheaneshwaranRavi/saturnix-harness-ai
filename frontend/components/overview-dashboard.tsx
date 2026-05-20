@@ -38,6 +38,7 @@ export function OverviewDashboard({ overview }: { overview: DashboardOverview })
     ["Active Workflows", overview.live_metrics.active_workflows, Workflow],
     ["Memory Records", overview.live_metrics.memory_records, DatabaseZap]
   ] as const;
+  const doctrine = overview.operating_doctrine;
   return (
     <div className="space-y-6">
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
@@ -53,6 +54,43 @@ export function OverviewDashboard({ overview }: { overview: DashboardOverview })
           </Card>
         ))}
       </section>
+      {doctrine ? (
+        <section className="grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <CardTitle>Operating Doctrine</CardTitle>
+              <Badge tone="cyan">not {doctrine.anti_identity}</Badge>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-sm leading-6 text-slate-300">
+                SATURNIX-HARNESS runs as a {doctrine.identity.replaceAll("_", " ")}.
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {doctrine.behavior_modes.map((mode) => (
+                  <Badge key={mode} tone="green">
+                    {mode}
+                  </Badge>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle>Core Principles</CardTitle>
+            </CardHeader>
+            <CardContent className="grid gap-3 md:grid-cols-2">
+              {doctrine.core_principles.slice(0, 6).map((principle) => (
+                <div key={principle.id} className="rounded-lg border border-white/10 bg-black/20 p-4">
+                  <p className="text-sm font-medium text-white">{principle.label}</p>
+                  <p className="mt-2 text-sm leading-6 text-slate-400">
+                    {principle.enforcement}
+                  </p>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        </section>
+      ) : null}
       <section className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">

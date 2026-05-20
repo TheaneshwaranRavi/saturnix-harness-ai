@@ -16,10 +16,12 @@ def test_dashboard_overview_and_required_root_endpoints(tmp_path):
         assert overview.status_code == 200
         payload = overview.json()
         assert payload["model_name"] == "SATURNIX-HARNESS"
+        assert payload["operating_doctrine"]["anti_identity"] == "chatbot"
         assert payload["core_control_center"] == "MacBook Air M1"
         assert payload["edge_node"] == "Raspberry Pi 4B+"
 
         for path in [
+            "/dashboard/doctrine",
             "/agents",
             "/brains",
             "/memory",
@@ -33,6 +35,30 @@ def test_dashboard_overview_and_required_root_endpoints(tmp_path):
         ]:
             response = client.get(path)
             assert response.status_code == 200, path
+    finally:
+        app.dependency_overrides.clear()
+
+
+def test_dashboard_doctrine_blocks_risky_agent_execution_without_approval(tmp_path):
+    orchestrator = CoreOrchestrator(settings=_settings(tmp_path))
+
+    app.dependency_overrides[get_orchestrator] = lambda: orchestrator
+    client = TestClient(app)
+    try:
+        response = client.post(
+            "/agents/execute",
+            json={
+                "agent_name": "Security Agent",
+                "goal": "Run a security scan and prepare follow-up actions",
+                "dry_run": False,
+            },
+        )
+        assert response.status_code == 200
+        payload = response.json()
+        assert payload["ok"] is False
+        assert payload["confirmation_required"] is True
+        assert payload["doctrine"]["identity"] == "personalized_ai_infrastructure_system"
+        assert "human_approval_for_risky_actions" in payload["doctrine"]["principles_enforced"]
     finally:
         app.dependency_overrides.clear()
 
