@@ -63,6 +63,120 @@ class DataClass(str, Enum):
     critical_backups = "critical_backups"
 
 
+class SaturnixAgentRegistryEntry(BaseModel):
+    agent_name: str
+    purpose: str
+    best_brain: str
+    permissions: list[PermissionLevel]
+    tools: list[str]
+    risk_level: Literal["LOW", "MEDIUM", "HIGH", "CRITICAL"]
+    memory_scope: str
+    instructions: str
+    guardrails: list[str] = Field(default_factory=list)
+    fallback_logic: list[str] = Field(default_factory=list)
+    handoffs: list[str] = Field(default_factory=list)
+    tracing_enabled: bool = True
+
+
+class SaturnixStructuredAgentOutput(BaseModel):
+    summary: str
+    reasoning: list[str] = Field(default_factory=list)
+    actions: list[str] = Field(default_factory=list)
+    verification: list[str] = Field(default_factory=list)
+    memory_updates: list[str] = Field(default_factory=list)
+    next_actions: list[str] = Field(default_factory=list)
+    confidence_score: float = Field(default=0.0, ge=0.0, le=1.0)
+
+
+class SaturnixGuardrailDecision(BaseModel):
+    allowed: bool
+    approval_required: bool = False
+    risk_level: Literal["LOW", "MEDIUM", "HIGH", "CRITICAL"] = "LOW"
+    detected_risks: list[str] = Field(default_factory=list)
+    blocked_actions: list[str] = Field(default_factory=list)
+    recommended_fixes: list[str] = Field(default_factory=list)
+    principles_enforced: list[str] = Field(default_factory=list)
+
+
+class SaturnixAgentRunRequest(BaseModel):
+    agent_name: str
+    goal: str
+    context: str | None = None
+    session_id: str = "saturnix-default-session"
+    approved: bool = False
+    dry_run: bool = False
+    structured_output: bool = True
+    max_turns: int = Field(default=8, ge=1, le=30)
+
+
+class SaturnixToolUsageRecord(BaseModel):
+    tool_name: str
+    ok: bool = True
+    detail: str = ""
+    latency_ms: int | None = None
+
+
+class SaturnixTraceEvent(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid4()))
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    event_type: Literal[
+        "agent",
+        "handoff",
+        "tool",
+        "guardrail",
+        "memory",
+        "security",
+        "fallback",
+        "session",
+    ]
+    agent_name: str
+    message: str
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+
+class SaturnixAgentRunResult(BaseModel):
+    ok: bool
+    agent_name: str
+    selected_runtime: str
+    output: SaturnixStructuredAgentOutput | None = None
+    raw_output: str = ""
+    guardrail: SaturnixGuardrailDecision
+    trace_events: list[SaturnixTraceEvent] = Field(default_factory=list)
+    token_usage: dict[str, Any] = Field(default_factory=dict)
+    tool_usage: list[SaturnixToolUsageRecord] = Field(default_factory=list)
+    memory_access_logs: list[dict[str, Any]] = Field(default_factory=list)
+    security_events: list[dict[str, Any]] = Field(default_factory=list)
+    fallback_used: bool = False
+    fallback_reason: str | None = None
+
+
+class SaturnixHandoffStep(BaseModel):
+    from_agent: str
+    to_agent: str
+    reason: str
+
+
+class SaturnixHandoffPlan(BaseModel):
+    workflow_name: str
+    steps: list[SaturnixHandoffStep]
+    execution_order: list[str]
+
+
+class SaturnixHandoffRunResult(BaseModel):
+    ok: bool
+    plan: SaturnixHandoffPlan
+    results: list[SaturnixAgentRunResult]
+    final_output: SaturnixStructuredAgentOutput | None = None
+
+
+class SaturnixTraceSummary(BaseModel):
+    events: list[SaturnixTraceEvent]
+    token_usage: dict[str, Any] = Field(default_factory=dict)
+    tool_usage: list[SaturnixToolUsageRecord] = Field(default_factory=list)
+    memory_access_logs: list[dict[str, Any]] = Field(default_factory=list)
+    security_events: list[dict[str, Any]] = Field(default_factory=list)
+
+
 class BrainMessage(BaseModel):
     role: Literal["system", "user", "assistant", "tool"] = "user"
     content: str

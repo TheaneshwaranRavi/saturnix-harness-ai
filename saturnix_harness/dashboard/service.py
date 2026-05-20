@@ -66,12 +66,14 @@ class DashboardService:
                 "brain_providers": [item.model_dump(mode="json") for item in health],
                 "agents_online": len(agents),
                 "security_score": security["security_score"],
+                "agents_sdk": self.orchestrator.sdk_agent_manager.sdk_status(),
             },
             "live_metrics": {
                 "active_workflows": 3,
                 "memory_records": len(self.orchestrator.memory.list(namespace=None, limit=100)),
                 "audit_events": len(self.audit_logs()),
                 "voice_status": self.voice_status()["status"],
+                "trace_events": len(self.orchestrator.sdk_agent_manager.trace_summary().events),
             },
             "topology": [
                 {"source": "Dashboard", "target": "SATURNIX Core"},
@@ -266,6 +268,23 @@ class DashboardService:
 
     def operating_doctrine(self) -> dict[str, Any]:
         return self.doctrine.summary()
+
+    def agent_registry(self) -> dict[str, Any]:
+        return {
+            "sdk_status": self.orchestrator.sdk_agent_manager.sdk_status(),
+            "agents": [
+                agent.model_dump(mode="json")
+                for agent in self.orchestrator.sdk_agent_manager.registry_entries()
+            ],
+            "handoff_plan": self.orchestrator.sdk_agent_manager.handoff_plan().model_dump(
+                mode="json"
+            ),
+        }
+
+    def traces(self, limit: int = 100) -> dict[str, Any]:
+        return self.orchestrator.sdk_agent_manager.trace_summary(limit=limit).model_dump(
+            mode="json"
+        )
 
     def edge_status(self) -> dict[str, Any]:
         return {

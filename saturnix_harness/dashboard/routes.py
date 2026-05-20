@@ -59,6 +59,15 @@ async def list_dashboard_agents(
     return service.agents()
 
 
+@dashboard_router.get("/agents/registry")
+async def dashboard_agent_registry(
+    service: DashboardService = Depends(get_dashboard_service),
+    identity: dict = Depends(require_dashboard_identity),
+):
+    _ = identity
+    return service.agent_registry()
+
+
 @dashboard_router.post("/agents/create")
 async def create_dashboard_agent(
     request: CreateDashboardAgentRequest,
@@ -235,6 +244,16 @@ async def dashboard_logs(
 ):
     _ = identity
     return service.logs()
+
+
+@dashboard_router.get("/dashboard/traces")
+async def dashboard_traces(
+    limit: int = 100,
+    service: DashboardService = Depends(get_dashboard_service),
+    identity: dict = Depends(require_dashboard_identity),
+):
+    _ = identity
+    return service.traces(limit=limit)
 
 
 @dashboard_router.get("/api-keys")

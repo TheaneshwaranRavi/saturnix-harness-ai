@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from saturnix_harness.agents_sdk.manager import SaturnixAgentManager
 from saturnix_harness.brains.router import BrainRouter
 from saturnix_harness.brains.ollama_provider import SaturnixOllamaProvider
 from saturnix_harness.core.cognitive_workflow_planner import CognitiveWorkflowPlanner
@@ -37,6 +38,7 @@ from saturnix_harness.schemas import (
     OmegaRunRequest,
     SaturnixExecutionRequest,
     SaturnixExecutionResult,
+    SaturnixAgentRunRequest,
     SecurityScanRequest,
     SelfHealingInfrastructureRequest,
     VoiceCognitiveTurnRequest,
@@ -83,6 +85,13 @@ class CoreOrchestrator:
         self.consensus_engine = ConsensusEngine(self.brain_router)
         self.distributed_intelligence_engine = DistributedIntelligenceEngine()
         self.security_sentinel = SecuritySentinel()
+        self.sdk_agent_manager = SaturnixAgentManager(
+            settings=self.settings,
+            memory=self.memory,
+            monitoring=self.monitoring,
+            ollama_provider=self.ollama_provider,
+            security_sentinel=self.security_sentinel,
+        )
         self.self_healing_infrastructure_engine = SelfHealingInfrastructureEngine()
         self.forge_engine = ForgeCodingEngine(
             brain_router=self.brain_router,
@@ -144,6 +153,12 @@ class CoreOrchestrator:
 
     async def run_consensus(self, request: ConsensusRequest):
         return await self.consensus_engine.run_consensus(request)
+
+    async def run_sdk_agent(self, request: SaturnixAgentRunRequest):
+        return await self.sdk_agent_manager.run_agent(request)
+
+    async def run_sdk_handoff_workflow(self, request: SaturnixAgentRunRequest):
+        return await self.sdk_agent_manager.run_handoff_workflow(request)
 
     async def plan_distributed_intelligence(
         self,

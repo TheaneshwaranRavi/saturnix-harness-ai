@@ -37,10 +37,15 @@ def _check_backend() -> list[Check]:
         "/health",
         "/dashboard/overview",
         "/dashboard/doctrine",
+        "/dashboard/traces",
         "/agents",
+        "/agents/registry",
         "/brains",
         "/security/status",
         "/workflows",
+        "/v1/sdk/agents",
+        "/v1/sdk/handoffs",
+        "/v1/sdk/traces",
     ]:
         checks.append(_get_json(f"backend {path}", f"{API_BASE}{path}"))
     checks.append(
@@ -93,6 +98,7 @@ def _check_frontend() -> list[Check]:
         for path in [
             "/",
             "/agents",
+            "/tracing",
             "/security-center",
             "/memory-vault",
             "/brain-router",

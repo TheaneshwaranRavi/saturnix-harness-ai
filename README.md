@@ -443,12 +443,115 @@ Smoke-test the running MVP:
 python3.11 scripts/smoke_mvp.py
 ```
 
+## OpenAI Agents SDK Orchestration
+
+SATURNIX-HARNESS now includes an OpenAI Agents SDK integration layer under
+`saturnix_harness/agents_sdk`.
+
+The SDK layer provides:
+
+- SDK-backed agent definitions with `Agent`
+- Centralized execution through `Runner`
+- SQLite-backed session continuity with `SQLiteSession`
+- SDK tracing through `trace()`
+- SDK function tools through reusable SATURNIX tool wrappers
+- Input guardrail integration
+- Pydantic structured outputs
+- Handoff workflows
+- Local fallback through Ollama, Gemma, local coding models, or mock structured output
+
+The unified SATURNIX Agent Registry exposes:
+
+```json
+{
+  "agent_name": "",
+  "purpose": "",
+  "best_brain": "",
+  "permissions": [],
+  "tools": [],
+  "risk_level": "",
+  "memory_scope": ""
+}
+```
+
+SDK-ready default agents:
+
+- Personal Assistant Agent
+- Coding Agent
+- Research Agent
+- Security Agent
+- Memory Agent
+- Workflow Agent
+- Voice Agent
+- Raspberry Pi Edge Agent
+- Job Application Agent
+- Semiconductor Design Agent
+- Verification Agent
+
+Default handoff workflow:
+
+```text
+Voice Agent -> Research Agent -> Coding Agent -> Verification Agent -> Memory Agent
+```
+
+SDK endpoints:
+
+- `GET /v1/sdk/agents`
+- `POST /v1/sdk/agents/run`
+- `GET /v1/sdk/handoffs`
+- `POST /v1/sdk/handoffs/run`
+- `GET /v1/sdk/traces`
+- `GET /dashboard/traces`
+- `GET /agents/registry`
+
+Run a structured SDK-agent dry run:
+
+```bash
+curl -X POST http://localhost:8088/v1/sdk/agents/run \
+  -H "Content-Type: application/json" \
+  -d '{
+    "agent_name": "Research Agent",
+    "goal": "Research secure SATURNIX dashboard architecture",
+    "dry_run": true,
+    "structured_output": true
+  }'
+```
+
+Run the verified handoff workflow:
+
+```bash
+curl -X POST http://localhost:8088/v1/sdk/handoffs/run \
+  -H "Content-Type: application/json" \
+  -d '{
+    "agent_name": "Voice Agent",
+    "goal": "Build a secure voice-to-code automation flow",
+    "dry_run": true,
+    "structured_output": true
+  }'
+```
+
+Security guardrails block:
+
+- Prompt injection
+- Dangerous tool execution
+- Unsafe code execution
+- Unauthorized file access
+- Secret exposure
+- Risky actions without user approval
+
+Set `OPENAI_API_KEY` and `OPENAI_AGENTS_MODEL` to enable live OpenAI Agents SDK
+execution. Without a working SDK import or API key, SATURNIX returns structured
+fallback results so local development, tests, and Ollama-first workflows remain
+available.
+
 Dashboard API endpoints:
 
 - `GET /health`
 - `GET /dashboard/overview`
 - `GET /dashboard/doctrine`
+- `GET /dashboard/traces`
 - `GET /agents`
+- `GET /agents/registry`
 - `POST /agents/create`
 - `POST /agents/execute`
 - `GET /brains`

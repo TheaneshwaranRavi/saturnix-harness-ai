@@ -22,14 +22,44 @@ export type DashboardOverview = {
   core_control_center: string;
   edge_node: string;
   storage: Record<string, string>;
-  system_health: { status: string; agents_online: number; security_score: number };
+  system_health: {
+    status: string;
+    agents_online: number;
+    security_score: number;
+    agents_sdk?: {
+      enabled: boolean;
+      available: boolean;
+      import_error?: string | null;
+      openai_configured: boolean;
+      model: string;
+      fallbacks: string[];
+    };
+  };
   live_metrics: {
     active_workflows: number;
     memory_records: number;
     audit_events: number;
     voice_status: string;
+    trace_events?: number;
   };
   topology: Array<{ source: string; target: string }>;
+};
+
+export type TraceEvent = {
+  id: string;
+  timestamp: string;
+  event_type: string;
+  agent_name: string;
+  message: string;
+  metadata: Record<string, unknown>;
+};
+
+export type TraceSummary = {
+  events: TraceEvent[];
+  token_usage: Record<string, unknown>;
+  tool_usage: Array<Record<string, unknown>>;
+  memory_access_logs: Array<Record<string, unknown>>;
+  security_events: Array<Record<string, unknown>>;
 };
 
 export type SecurityStatus = {
@@ -112,12 +142,25 @@ export const fallbackOverview: DashboardOverview = {
     vault: "HDD / 10TB SATURNIX Vault",
     recovery: "Encrypted pendrive recovery layer"
   },
-  system_health: { status: "operational", agents_online: 10, security_score: 94 },
+  system_health: {
+    status: "operational",
+    agents_online: 10,
+    security_score: 94,
+    agents_sdk: {
+      enabled: true,
+      available: false,
+      import_error: null,
+      openai_configured: false,
+      model: "gpt-4.1-mini",
+      fallbacks: ["ollama", "gemma", "local coding model", "mock structured output"]
+    }
+  },
   live_metrics: {
     active_workflows: 3,
     memory_records: 128,
     audit_events: 42,
-    voice_status: "configured"
+    voice_status: "configured",
+    trace_events: 0
   },
   topology: [
     { source: "Dashboard", target: "SATURNIX Core" },
@@ -183,6 +226,31 @@ export const auditLogRows = [
   { action: "agent.execute.blocked", actor: "Security Agent", result: "requires confirmation", timestamp: "zero trust policy" }
 ];
 
+export const fallbackTraces: TraceSummary = {
+  events: [
+    {
+      id: "fallback-trace-1",
+      timestamp: "live endpoint when backend is running",
+      event_type: "guardrail",
+      agent_name: "Security Agent",
+      message: "SATURNIX guardrails evaluated.",
+      metadata: { risk_level: "LOW" }
+    },
+    {
+      id: "fallback-trace-2",
+      timestamp: "live endpoint when backend is running",
+      event_type: "fallback",
+      agent_name: "Coding Agent",
+      message: "Local model fallback ready.",
+      metadata: { runtime: "ollama/mock" }
+    }
+  ],
+  token_usage: { estimated_total: 0 },
+  tool_usage: [],
+  memory_access_logs: [],
+  security_events: []
+};
+
 export function getOverview(): Promise<DashboardOverview> {
   return apiFetch("/dashboard/overview", fallbackOverview);
 }
@@ -202,4 +270,8 @@ export function getSecurityStatus(): Promise<SecurityStatus> {
     lockdown_mode: false,
     security_controls: ["JWT authentication", "audit logging", "rate limiting"]
   });
+}
+
+export function getTraceSummary(): Promise<TraceSummary> {
+  return apiFetch("/dashboard/traces", fallbackTraces);
 }

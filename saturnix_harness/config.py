@@ -28,9 +28,13 @@ class Settings(BaseSettings):
     saturnix_enable_ollama: bool = False
     saturnix_default_brain: str = "openai"
     saturnix_local_only: bool = False
+    saturnix_enable_agents_sdk: bool = True
+    saturnix_agents_session_path: Path = Field(default=Path("./data/agents_sessions.sqlite3"))
+    saturnix_agents_trace_namespace: str = "sdk:traces"
 
     openai_api_key: SecretStr | None = None
     openai_model: str = "gpt-4.1"
+    openai_agents_model: str = "gpt-4.1-mini"
 
     anthropic_api_key: SecretStr | None = None
     claude_model: str = "claude-3-7-sonnet-latest"

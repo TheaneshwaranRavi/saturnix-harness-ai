@@ -26,6 +26,7 @@ from saturnix_harness.schemas import (
     OmegaRunRequest,
     SaveMemoryRequest,
     SearchMemoryRequest,
+    SaturnixAgentRunRequest,
     SaturnixExecutionRequest,
     SaturnixExecutionResult,
     SecurityScanRequest,
@@ -114,6 +115,46 @@ async def run_consensus(
     orchestrator: CoreOrchestrator = Depends(get_orchestrator),
 ):
     return await orchestrator.run_consensus(request)
+
+
+@router.get("/sdk/agents")
+async def list_sdk_agents(orchestrator: CoreOrchestrator = Depends(get_orchestrator)):
+    return {
+        "sdk_status": orchestrator.sdk_agent_manager.sdk_status(),
+        "agents": [
+            agent.model_dump(mode="json")
+            for agent in orchestrator.sdk_agent_manager.registry_entries()
+        ],
+    }
+
+
+@router.post("/sdk/agents/run")
+async def run_sdk_agent(
+    request: SaturnixAgentRunRequest,
+    orchestrator: CoreOrchestrator = Depends(get_orchestrator),
+):
+    return await orchestrator.run_sdk_agent(request)
+
+
+@router.get("/sdk/handoffs")
+async def sdk_handoff_plan(orchestrator: CoreOrchestrator = Depends(get_orchestrator)):
+    return orchestrator.sdk_agent_manager.handoff_plan()
+
+
+@router.post("/sdk/handoffs/run")
+async def run_sdk_handoff_workflow(
+    request: SaturnixAgentRunRequest,
+    orchestrator: CoreOrchestrator = Depends(get_orchestrator),
+):
+    return await orchestrator.run_sdk_handoff_workflow(request)
+
+
+@router.get("/sdk/traces")
+async def sdk_trace_summary(
+    limit: int = 100,
+    orchestrator: CoreOrchestrator = Depends(get_orchestrator),
+):
+    return orchestrator.sdk_agent_manager.trace_summary(limit=limit)
 
 
 @router.post("/distributed/plan")
