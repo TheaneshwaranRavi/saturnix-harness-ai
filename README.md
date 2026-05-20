@@ -425,10 +425,22 @@ npm install
 npm run dev
 ```
 
+Run the full local dashboard MVP with one command:
+
+```bash
+scripts/run_local_mvp.sh
+```
+
 Open:
 
 ```text
 http://localhost:3000
+```
+
+Smoke-test the running MVP:
+
+```bash
+python3.11 scripts/smoke_mvp.py
 ```
 
 Dashboard API endpoints:
